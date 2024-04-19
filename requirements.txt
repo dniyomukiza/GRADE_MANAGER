@@ -1,0 +1,11 @@
+click
+Flask
+Flask-SQLAlchemy
+greenlet
+gunicorn
+itsdangerous
+Jinja2
+MarkupSafe
+psycopg2-binary
+SQLAlchemy
+Werkzeug
