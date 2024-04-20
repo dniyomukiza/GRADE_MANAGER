@@ -1,3 +1,3 @@
-from Myapp import create_app
+from Myappdidier import create_app
 
 app = create_app()
