@@ -1,4 +1,7 @@
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from .extensions import db
+from flask_login import UserMixin
 
 
 # Define the Class model (database)
@@ -60,19 +63,45 @@ class Student(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def get_class_id(self):
+        # Method to return the associated class ID
+        return self.class_id
+
 
 # Define the User model (database)
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))  # Assuming password hashing for security
+    password = db.Column(db.String(250))  # Assuming password hashing for security
 
     def __init__(self, username, password):
         self.username = username
-        self.password = password
+        self.set_password(password)  # Set the password using the set_password method
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
     @classmethod
-    def create_user(cls, username, password):
-        new_user = cls(username=username, password=password)
+    def create_user(cls, username, password_hash):
+        new_user = cls(username=username, password=password_hash)
         db.session.add(new_user)
         db.session.commit()
+
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return self.id
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False

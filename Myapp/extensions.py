@@ -1,3 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy as sa
 
-db = SQLAlchemy()
+db = sa()

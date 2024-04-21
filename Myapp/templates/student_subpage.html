@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Subpage</title>
+</head>
+<body>
+    <h1>Student Subpage</h1>
+    <h2>Student Information</h2>
+    <p>Name: {{ student.name }}</p>
+    <p>Grade: {{ student.grade }}</p>
+
+    <h2>Options</h2>
+    <form method="post">
+        <label for="new_name">Update Name:</label>
+        <input type="text" id="new_name" name="new_name" required>
+        <button type="submit" name="update_name">Update Name</button>
+    </form>
+
+    <form method="post">
+        <label for="new_grade">Update Grade:</label>
+        <input type="text" id="new_grade" name="new_grade" required>
+        <button type="submit" name="update_grade">Update Grade</button>
+    </form>
+
+    <form method="post">
+        <button type="submit" name="delete_student" onclick="return confirm('Are you sure you want to delete this student?')">Delete Student</button>
+    </form>
+
+    <!-- Button to return to class home page -->
+    <form action="{{ url_for('main.class_home', class_id=student.class_id) }}" method="get">
+        <button type="submit">Return to Class Home Page</button>
+    </form>
+</body>
+</html>

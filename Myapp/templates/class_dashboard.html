@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Manager</title>
+</head>
+<body>
+    <h1>Class Manager</h1>
+    <h2>List of Classes</h2>
+    <ul>
+        {% for class_obj in classes %}
+            <li>
+                {{ class_obj.class_name }} -
+                <a href="{{ url_for('main.class_home', class_id=class_obj.id) }}">View</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <h2>Options</h2>
+    <ul>
+        <li><a href="{{ url_for('main.create_class') }}">Create a Class</a></li>
+        <li><a href="{{ url_for('main.rename_class') }}">Rename a Class</a></li>
+        <li><a href="{{ url_for('main.delete_class') }}">Delete a Class</a></li>
+    </ul>
+    <!-- Form for logging out -->
+    <form action="{{ url_for('main.logout') }}" method="post">
+        <button type="submit">Log Out</button>
+    </form>
+</body>
+</html>

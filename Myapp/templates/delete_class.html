@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Class</title>
+</head>
+<body>
+    <h1>Delete Class</h1>
+
+    <form method="post">
+        <label for="class_id">Select Class to Delete:</label>
+        <select id="class_id" name="class_id" required>
+            <!-- Populate the select dropdown with classes -->
+            {% for class_obj in classes %}
+                <option value="{{ class_obj.id }}">{{ class_obj.class_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" name="delete_class">Delete Class</button>
+    </form>
+
+    <!-- Button to return to class dashboard -->
+    <a href="{{ url_for('main.class_dashboard') }}">Return to Class Dashboard</a>
+</body>
+</html>

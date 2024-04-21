@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rename Class</title>
+</head>
+<body>
+    <h1>Rename Class</h1>
+
+    <form method="post">
+        <label for="class_id">Select Class to Rename:</label>
+        <select id="class_id" name="class_id" required>
+            <!-- Populate the select dropdown with classes -->
+            {% for class in classes %}
+                <option value="{{ class.id }}">{{ class.class_name }}</option>
+            {% endfor %}
+        </select>
+        <label for="new_class_name">New Class Name:</label>
+        <input type="text" id="new_class_name" name="new_class_name" required>
+        <button type="submit" name="rename_class">Rename Class</button>
+    </form>
+
+    <!-- Button to return to class dashboard -->
+    <a href="{{ url_for('main.class_dashboard') }}">Return to Class Dashboard</a>
+</body>
+</html>
