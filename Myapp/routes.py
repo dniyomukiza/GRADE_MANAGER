@@ -27,7 +27,7 @@ def login():
             db.select(User).where(User.username == form.username.data))
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
-            return redirect(url_for('login'))
+            return redirect(url_for('main.login'))
         login_user(user, remember=form.remember_me.data)
         return redirect(url_for('main.class_dashboard'))
     return render_template("login.html", title='Login', form=form)
