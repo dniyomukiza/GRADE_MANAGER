@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include 'messages.html' %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: darkgray;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .login-container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow to container */
+      text-align: center;
+      width: 400px;
+      height: auto;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    form {
+      margin-top: 20px; /* Add space between header and form */
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="submit"]
+    input[type="checkbox"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    input[type="submit"] {
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+      padding: 10px;
+      font-size: 18px;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    .remember-me-container {
+      text-align: left;
+      margin-left: 10px;
+    }
+
+    .register-link {
+      margin-top: 30px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+<div class="login-container">
+  <h1>Login</h1>
+  <form method="POST" action="">
+    {{ form.csrf_token() }}
+    {{ form.hidden_tag() }}
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <div class="remember-me-container">
+      <input type="checkbox" id="remember_me" name="remember_me">
+      <label for="remember_me">Remember Me</label>
+    </div>
+    <input type="submit" value="Login">
+  </form>
+  <a href="{{url_for('main.register')}}" class="register-link"> No account? Sign up</a>
+</div>
+</body>
+</html>
