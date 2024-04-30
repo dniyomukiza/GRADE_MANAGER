@@ -1,3 +1,5 @@
+from re import search
+
 from flask import Blueprint, redirect, url_for, render_template, flash, request
 from flask_login import login_user, current_user, login_required, logout_user
 from wtforms.fields.simple import BooleanField
@@ -34,16 +36,24 @@ def login():
 
 
 # Register route
+# Register route
 @main.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         new_user_username = form.username.data
         new_user_password = form.password.data
-        db.session.add(User(username=new_user_username, password=new_user_password))
-        db.session.commit()
-        flash(f'Your account has been succesfully created!')
-        return redirect(url_for('main.login'))
+        if len(new_user_username) < 7 or search("[\d]+", new_user_username) is None or search("[A-Z]+",
+                                                                                              new_user_username) is None:
+            flash("Username doesn't satisfy criteria")
+        elif len(new_user_password) < 12 or search("[A-Z]+", new_user_password) is None or search("[_@#$]+",
+                                                                                                  new_user_password) is None:
+            flash("Password doesn't satisfy criteria")
+        else:
+            db.session.add(User(username=new_user_username, password=new_user_password))
+            db.session.commit()
+            flash(f'Your account has been successfully created! Please login below')
+            return redirect(url_for('main.login'))
     return render_template("register.html", title='Register', form=form)
 
 
@@ -77,10 +87,13 @@ def class_operation(operation):
 def create_class():
     if request.method == 'POST':
         class_name = request.form['class_name']
-        # Create the class and add it to the database
-        Class.create_class(class_name, current_user.id)
-        flash('Class "{}" created successfully.'.format(class_name), 'success')
-        return redirect(url_for('main.class_dashboard'))
+        if len(class_name) < 4:
+            flash("Class name must have more than 4 characters")
+        else:
+            # Create the class and add it to the database
+            Class.create_class(class_name, current_user.id)
+            flash('Class "{}" created successfully.'.format(class_name), 'success')
+            return redirect(url_for('main.class_dashboard'))
     return render_template('create_class.html')
 
 
@@ -90,22 +103,27 @@ def rename_class():
     if request.method == 'POST':
         class_id = request.form['class_id']
         new_class_name = request.form['new_class_name']
-        # Retrieve the class object
         class_obj = Class.query.get(class_id)
-        if class_obj is None or class_obj.user_id != current_user.id:
+        if len(new_class_name) < 4:
+            flash("Class name must have at least 4 characters")
+        elif class_obj is None or class_obj.user_id != current_user.id:
+            # Retrieve the class object
             # Handle unauthorized access or non-existing class
             flash('Class does not exist or you are not authorized to rename it.', 'error')
             return redirect(url_for('main.class_dashboard'))
-        # Update the class name
-        class_obj.class_name = new_class_name
-        db.session.commit()
-        flash('Class "{}" renamed successfully.'.format(new_class_name), 'success')
-        return redirect(url_for('main.class_dashboard'))
-    else:
-        # Render the template for renaming a class
-        user_classes = Class.get_user_classes(current_user.id)
+        else:
+            # Update the class name
+            old_class_name = class_obj.class_name
+            class_obj.class_name = new_class_name
+            db.session.commit()
+            flash('Class "{}" renamed to "{}" successfully.'.format(old_class_name, new_class_name), 'success')
+            return redirect(url_for('main.class_dashboard'))
 
-        return render_template('rename_class.html', classes=user_classes)
+    # Render the template for renaming a class
+
+    user_classes = Class.get_user_classes(current_user.id)
+
+    return render_template('rename_class.html', classes=user_classes)
 
 
 @main.route('/delete_class', methods=['GET', 'POST'])
@@ -144,17 +162,41 @@ def class_home(class_id):
     students = class_obj.students
 
     if request.method == 'POST':
-        if 'add_student' in request.form:
-            # Add new student to the class
-            name = request.form['name']
-            grade = request.form['grade']
+        # Handle any other class-related actions, if needed
+        pass
+
+    return render_template('class_home.html', class_obj=class_obj, students=students, class_id=class_id)
+
+
+# Route for adding a student
+@main.route('/add_student/<int:class_id>', methods=['GET', 'POST'])
+@login_required
+def add_student(class_id):
+    # Retrieve the class object
+    class_obj = Class.query.get(class_id)
+    if class_obj is None or class_obj.user_id != current_user.id:
+        # Handle unauthorized access or non-existing class
+        return "Unauthorized access or class does not exist.", 404
+
+    if request.method == 'POST':
+        # Process form submission to add a new student
+        # Retrieve form data
+        name = request.form['name']
+        grade = request.form['grade']
+        # Validate and add the student
+        if len(name) < 4:
+            flash("Student name must have at least 4 characters")
+        elif not grade.isnumeric() or not (0 <= float(grade) <= 100):
+            flash("Grade percentage must be between 0 and 100")
+        else:
             new_student = Student(name=name, grade=grade, class_enrolled=class_obj)
             db.session.add(new_student)
             db.session.commit()
             flash('Student "{}" added successfully.'.format(name), 'success')
             return redirect(url_for('main.class_home', class_id=class_id))
 
-    return render_template('class_home.html', class_obj=class_obj, students=students)
+    # Pass class_id to the template
+    return render_template('add_student.html', class_id=class_id)
 
 
 @main.route('/logout', methods=['GET', 'POST'])
@@ -170,6 +212,7 @@ def logout():
 def student_sub_page(student_id):
     # Retrieve the student object
     student = Student.query.get(student_id)
+    class_id = Student.query.get(student_id).class_id
     if student is None:
         # Handle non-existing student
         return "Student does not exist.", 404
@@ -185,19 +228,27 @@ def student_sub_page(student_id):
         elif 'update_name' in request.form:
             # Update the student's name
             new_name = request.form['new_name']
-            student.name = new_name
-            db.session.commit()
-            flash('Student name updated successfully.', 'success')
-            return redirect(url_for('main.student_sub_page', student_id=student_id))
+            if len(new_name) < 4:
+                flash("Student name must have at least 4 characters")
+                return render_template('student_subpage.html', student=student)
+            else:
+                student.name = new_name
+                db.session.commit()
+                flash('Student name updated successfully.', 'success')
+                return redirect(url_for('main.student_sub_page', student_id=student_id))
         elif 'update_grade' in request.form:
             # Update the student's grade
             new_grade = request.form['new_grade']
-            student.grade = new_grade
-            db.session.commit()
-            flash('Student grade updated successfully.', 'success')
-            return redirect(url_for('main.student_sub_page', student_id=student_id))
+            if float(new_grade) < 0.00 or float(new_grade) > 100.00:
+                flash("Grade percentage must be between 0 and 100")
+                return render_template('student_subpage.html', student=student)
+            else:
+                student.grade = new_grade
+                db.session.commit()
+                flash('Student grade updated successfully.', 'success')
+                return redirect(url_for('main.student_sub_page', student_id=student_id))
 
-    return render_template('student_subpage.html', student=student)
+    return render_template('student_subpage.html', student=student, class_id=class_id)
 
 
 class RegistrationForm(FlaskForm):
