@@ -184,9 +184,9 @@ def add_student(class_id):
         name = request.form['name']
         grade = request.form['grade']
         # Validate and add the student
-        if len(name) < 4:
-            flash("Student name must have at least 4 characters")
-        elif not grade.isnumeric() or not (0 <= float(grade) <= 100):
+        if len(name) < 4 or not name.isalpha():
+            flash("Student name must have at least 4 characters and contain only alphabetic characters")
+        elif not (grade.replace('.', '', 1).isdigit()) or not (0 <= float(grade) <= 100):
             flash("Grade percentage must be between 0 and 100")
         else:
             new_student = Student(name=name, grade=grade, class_enrolled=class_obj)
@@ -228,9 +228,9 @@ def student_sub_page(student_id):
         elif 'update_name' in request.form:
             # Update the student's name
             new_name = request.form['new_name']
-            if len(new_name) < 4:
-                flash("Student name must have at least 4 characters")
-                return render_template('student_subpage.html', student=student)
+            if len(new_name) < 4 or not new_name.isalpha():
+                flash("Student name must have at least 4 characters and contain only alphabetic characters")
+                return render_template('student_subpage.html', student=student, class_id=class_id)
             else:
                 student.name = new_name
                 db.session.commit()
@@ -239,9 +239,9 @@ def student_sub_page(student_id):
         elif 'update_grade' in request.form:
             # Update the student's grade
             new_grade = request.form['new_grade']
-            if float(new_grade) < 0.00 or float(new_grade) > 100.00:
+            if not (new_grade.replace('.', '', 1).isdigit()) or not (0 <= float(new_grade) <= 100):
                 flash("Grade percentage must be between 0 and 100")
-                return render_template('student_subpage.html', student=student)
+                return render_template('student_subpage.html', student=student, class_id=class_id)
             else:
                 student.grade = new_grade
                 db.session.commit()
