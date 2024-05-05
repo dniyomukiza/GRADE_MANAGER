@@ -184,7 +184,7 @@ def add_student(class_id):
         name = request.form['name']
         grade = request.form['grade']
         # Validate and add the student
-        if len(name) < 4 or not name.isalpha():
+        if len(name) < 4 or not name.replace(" ", "").isalpha():
             flash("Student name must have at least 4 characters and contain only alphabetic characters")
         elif not (grade.replace('.', '', 1).isdigit()) or not (0 <= float(grade) <= 100):
             flash("Grade percentage must be between 0 and 100")
