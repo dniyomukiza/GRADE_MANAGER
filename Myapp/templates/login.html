@@ -43,8 +43,7 @@
 
     input[type="text"],
     input[type="password"],
-    input[type="submit"],
-    input[type="checkbox"] {
+    input[type="submit"] {
       width: 100%;
       padding: 10px;
       margin-bottom: 10px;
@@ -65,11 +64,6 @@
       background-color: #0056b3;
     }
 
-    .remember-me-container {
-      text-align: left;
-      margin-left: 10px;
-    }
-
     .register-link {
       margin-top: 30px;
       display: inline-block;
@@ -88,10 +82,6 @@
       {{ form.hidden_tag() }}
       <input type="text" name="username" placeholder="Username" required>
       <input type="password" name="password" placeholder="Password" required>
-      <div class="remember-me-container">
-        <input type="checkbox" id="remember_me" name="remember_me">
-        <label for="remember_me">Remember Me</label>
-      </div>
       <input type="submit" value="Login">
     </form>
     <a href="{{url_for('main.register')}}" class="register-link"> No account? Sign up</a>
